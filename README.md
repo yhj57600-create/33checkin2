@@ -1,1 +1,490 @@
 
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5분 성찰 체크인(시험기간 edition)</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
+
+<style>
+* { font-family: 'Noto Sans KR'; }
+.mood-btn{
+  transition:.2s;
+  font-size: 2rem;
+  line-height: 1;
+  padding: .35rem;
+}
+.mood-btn.selected{transform:scale(1.28)}
+.cookie-pop{animation:pop .35s ease}
+@keyframes pop {
+  from { transform: scale(.85); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+</style>
+</head>
+
+<body class="min-h-screen flex justify-center items-center bg-gradient-to-br from-yellow-200 via-amber-100 to-yellow-50">
+
+<div class="bg-white/95 backdrop-blur-sm p-6 rounded-3xl shadow-xl border border-amber-100 w-96">
+
+  <div class="flex justify-center mb-3">
+    <div class="inline-flex items-center gap-2 rounded-full bg-pink-100 px-4 py-1.5 text-xs font-medium text-pink-600 shadow-sm">
+      <span>☀️</span>
+      <span id="today-date"></span>
+    </div>
+  </div>
+
+  <div class="text-center text-xs mb-2 text-gray-500">
+    made by 너희를 응원하는 양센세 😎
+  </div>
+  <h1 class="text-2xl font-bold text-center mb-2 text-pink-500">
+    🏆 삼땡반 체크인
+  </h1>
+
+  <p class="text-sm text-center text-pink-400 mb-5 leading-relaxed">
+    하루 중 5분이라도<br>
+    온전히 소중한 자신을 돌아보자
+  </p>
+
+  <div id="checkin-view" class="rounded-2xl bg-gradient-to-br from-pink-50 to-rose-50 border border-amber-100 p-5 shadow-sm">
+
+  <div class="flex items-center gap-3 mb-4">
+    <div class="flex h-12 w-12 items-center justify-center rounded-full bg-pink-100 text-2xl shadow-sm">
+      🚪
+    </div>
+    <div>
+      <p class="text-base font-bold text-pink-500">등교 체크인</p>
+      <p class="text-xs text-gray-500">출석번호를 선택하고 오늘의 시작을 열어보세요</p>
+    </div>
+  </div>
+
+  <div class="rounded-xl bg-white/80 border border-pink-100 px-4 py-3 mb-4">
+    <p class="text-xs text-pink-500 font-semibold mb-1">오늘의 안내</p>
+    <p class="text-sm text-gray-600 leading-relaxed">
+      번호를 선택한 뒤 체크인을 누르면<br>
+      출석 시간이 바로 기록돼요 ✨
+    </p>
+  </div>
+
+  <label for="student-select" class="block text-sm font-medium text-gray-600 mb-2">
+    출석번호 선택
+  </label>
+
+  <select id="student-select" class="w-full p-3 border border-pink-200 rounded-xl mb-4 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-300 shadow-sm">
+    <option value="">출석번호 선택</option>
+    <option value="1">1번 강은지</option>
+    <option value="2">2번 김가은</option>
+    <option value="3">3번 김가현</option>
+    <option value="4">4번 김영훈</option>
+    <option value="5">5번 김윤석</option>
+    <option value="6">6번 박세현</option>
+    <option value="7">7번 박재량</option>
+    <option value="8">8번 박지원</option>
+    <option value="9">9번 박환주</option>
+    <option value="10">10번 변호섭</option>
+    <option value="11">11번 서병수</option>
+    <option value="12">12번 안유찬</option>
+    <option value="13">13번 양승진</option>
+    <option value="14">14번 윤초아</option>
+    <option value="15">15번 이강우</option>
+    <option value="16">16번 이나경</option>
+    <option value="17">17번 이지원</option>
+    <option value="18">18번 이하나</option>
+    <option value="19">19번 장민준</option>
+    <option value="20">20번 정라경</option>
+    <option value="21">21번 정하진</option>
+    <option value="22">22번 조수빈</option>
+    <option value="23">23번 조수연</option>
+    <option value="24">24번 조한성</option>
+    <option value="25">25번 조해윤</option>
+    <option value="26">26번 주하준</option>
+    <option value="27">27번 주현우</option>
+    <option value="28">28번 홍혜인</option>
+  </select>
+
+  <button id="checkin-btn" onclick="confirmCheckIn()" class="w-full bg-gradient-to-r from-pink-400 to-rose-400 text-white py-3 rounded-xl shadow-md font-semibold hover:scale-[1.01] transition">
+    등교 완료 🚪
+  </button>
+
+  <p class="text-xs text-center text-gray-400 mt-3">
+    해 뜨기 전이 가장 어둡다 
+  </p>
+</div>
+
+<div id="confirmation-view" class="hidden text-center">
+  <p id="student-name" class="text-lg font-bold mb-2"></p>
+  <p id="time-text" class="text-sm mb-2"></p>
+
+  <p id="late-status" class="text-sm font-bold mb-1"></p>
+  <p id="late-message" class="text-xs mb-4"></p>
+
+  <button onclick="startReflection()" class="w-full bg-pink-500 text-white py-2 rounded">
+    성찰 시작
+  </button>
+</div>
+
+  <div id="reflection-view" class="hidden">
+    <p class="mt-3 mb-2">😊 기분</p>
+
+    <div class="grid grid-cols-4 gap-3 mb-4 text-center">
+      <button class="mood-btn" onclick="selectMood(this,'😊')">😊</button>
+      <button class="mood-btn" onclick="selectMood(this,'😄')">😄</button>
+      <button class="mood-btn" onclick="selectMood(this,'🙂')">🙂</button>
+      <button class="mood-btn" onclick="selectMood(this,'😐')">😐</button>
+      <button class="mood-btn" onclick="selectMood(this,'😢')">😢</button>
+      <button class="mood-btn" onclick="selectMood(this,'😭')">😭</button>
+      <button class="mood-btn" onclick="selectMood(this,'😠')">😠</button>
+      <button class="mood-btn" onclick="selectMood(this,'😴')">😴</button>
+    </div>
+
+    <textarea id="yesterday-input" placeholder="내가 공부하는 이유" class="w-full border p-2 rounded mb-2"></textarea>
+    <textarea id="today-input" placeholder="어제 나를 힘들게 한 것" class="w-full border p-2 rounded mb-2"></textarea>
+    <textarea id="gratitude-input" placeholder="시험장에 가져갈 마음가짐" class="w-full border p-2 rounded mb-2"></textarea>
+
+    <p id="reflection-warning" class="hidden text-xs text-red-500 mb-3 text-center font-medium">
+  잠깐 적는게 그렇게 어려워?
+</p>
+    <button id="next-btn" onclick="goPromise()" class="w-full bg-black text-white py-2 rounded">
+      다음 →
+    </button>
+  </div>
+
+  <div id="promise-view" class="hidden">
+    <p class="mt-3 mb-2">🌱 오늘의 나에게 한마디</p>
+
+    <textarea id="promise-input"
+    placeholder="오늘 하루를 어떻게 보내고 싶은가요?"
+    class="w-full border p-2 rounded mb-3"></textarea>
+
+    <p id="promise-warning" class="hidden text-xs text-red-500 mb-3 text-center font-medium">
+  잠깐만 자신에게 투자하자.
+</p>
+    <button id="save-btn" onclick="saveReflection()"
+    class="w-full bg-black text-white py-2 rounded">
+      완료
+    </button>
+  </div>
+
+  <div id="final-view" class="hidden text-center">
+    <p class="text-lg font-bold text-pink-500 mb-2">오늘도 힘내자! 🌸</p>
+    <p class="text-sm text-gray-500 mb-5">포춘쿠키를 눌러 오늘의 한마디를 열어보세요.</p>
+
+    <div class="flex justify-center mb-5">
+      <button id="cookie-btn" type="button" onclick="openCookie()" class="text-7xl leading-none">
+        🥠
+      </button>
+    </div>
+
+    <div id="quote-card" class="hidden rounded-2xl border border-yellow-200 bg-yellow-50 p-4 cookie-pop">
+      <p class="text-xs text-yellow-700 mb-2">오늘의 응원 메시지</p>
+      <p id="quote-text" class="text-sm leading-6 text-gray-700"></p>
+    </div>
+
+    <button onclick="resetAll()" class="w-full bg-pink-500 text-white py-2 rounded mt-5">
+      다시 시작
+    </button>
+  </div>
+<div id="checkin-success-overlay" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-white/70 backdrop-blur-sm">
+  <div id="checkin-success-card" class="rounded-3xl bg-white px-8 py-10 shadow-2xl border border-pink-100 text-center">
+    <div class="mb-4 text-6xl">🌸</div>
+    <p class="text-2xl font-bold text-pink-500 mb-2">체크인 완료!</p>
+    <p class="text-sm text-gray-500 mb-4">오늘도 무사히 등교했어요 ✨</p>
+  </div>
+</div>
+  <p id="msg" class="text-center mt-3 text-sm"></p>
+
+</div>
+
+<script>
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyDqc1TP3huxmt1yHgy1ZDYa2rwi6yoLZs07D0OI3ysJPtZt4rRw4ZrDvWA080AaZRtHQ/exec';
+  document.addEventListener("DOMContentLoaded", function () {
+  const today = new Date();
+  document.getElementById("today-date").innerText =
+    today.toLocaleDateString("ko-KR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      weekday: "short"
+    });
+});
+const QUOTES = [
+"지금까지 해온 노력, 시험장에서 빛난다."
+"긴장해도 괜찮아, 실력은 사라지지 않아."
+"한 문제씩 차근차근, 끝까지 가보자."
+"오늘은 네가 주인공인 날이다."
+"틀려도 괜찮아, 포기만 하지 마."
+"지금 이 순간에만 집중해."
+"넌 이미 충분히 잘해왔어."
+"마지막까지 집중하면 결과는 따라온다."
+"긴장 대신 기대를 가져봐."
+"최선을 다한 너를 믿어."
+"한 줄 한 줄이 너의 미래를 만든다."
+"조금 느려도 괜찮아, 멈추지만 마."
+"실수는 있어도 실패는 없다."
+"끝까지 읽고, 끝까지 생각하자."
+"포기하지 않는 게 가장 큰 실력이다."
+"지금까지의 노력이 널 도와줄 거야."
+"침착함이 최고의 무기다."
+"할 수 있다, 진짜로."
+"시험은 너를 이길 수 없다."
+"집중력은 마지막에 더 강해진다."
+"문제는 풀리려고 존재한다."
+"너는 생각보다 훨씬 강하다."
+"지금 이 한 문제에만 몰입해."
+"불안은 잠깐, 결과는 오래간다."
+"시작했으면 끝을 보자."
+"답은 네 안에 있다."
+"차분하게, 정확하게."
+"포기하지 않으면 반드시 끝난다."
+"최선을 다하면 후회는 없다."
+"지금이 바로 네 타이밍이다."
+"시험은 지나가고, 노력은 남는다."
+"한 문제라도 더 맞히면 승리다."
+"지금까지 버텼다면 오늘도 가능하다."
+"완벽보다 끝까지가 중요하다."
+"긴장은 실력이 있다는 증거다."
+"마지막까지 읽고 또 읽자."
+"집중하면 길이 보인다."
+"오늘은 결과를 가져가는 날."
+"너는 준비된 사람이다."
+"한 번 더 생각하면 답이 보인다."
+"할 수 있는 만큼이 아니라 끝까지 하자."
+"지금의 집중이 내일을 바꾼다."
+"포기하지 않는 사람이 결국 이긴다."
+"작은 집중이 큰 결과를 만든다."
+"시험은 네 가능성을 증명하는 기회다."
+"지금까지 잘해왔고, 지금도 잘하고 있다."
+"마지막 한 문제까지 최선을 다하자."
+"결과보다 과정이 널 더 강하게 만든다."
+"오늘의 노력이 내일의 자신감이 된다."
+"넌 이미 충분히 해낼 수 있는 사람이다."
+];
+
+let student = null;
+let mood = '';
+let attendanceData = null;
+let isSending = false;
+
+function showMsg(text) {
+  document.getElementById("msg").innerText = text || "";
+}
+
+
+function showCheckinSuccess(nextFn){
+  const overlay = document.getElementById("checkin-success-overlay");
+  const card = document.getElementById("checkin-success-card");
+
+  overlay.classList.remove("hidden");
+
+  setTimeout(()=>{
+    overlay.classList.add("hidden");
+    nextFn();
+  }, 1200);
+}
+function confirmCheckIn() {
+  if (isSending) return;
+
+  const val = document.getElementById('student-select').value;
+  if (!val) {
+    alert("번호 선택");
+    return;
+  }
+
+  student = val;
+
+  const now = new Date();
+  const minutes = now.getHours() * 60 + now.getMinutes();
+
+attendanceData = {
+  student: val,
+  time: now.toLocaleTimeString(),
+  iso: now.toISOString(),
+  minutes: minutes,
+  late: minutes >= (9 * 60) ? "지각" : "정상"
+};
+
+function goToConfirmation() {
+  document.getElementById("student-name").innerText = student + "번";
+  document.getElementById("time-text").innerText = "출석 시간: " + attendanceData.time;
+
+  const lateStatus = document.getElementById("late-status");
+  const lateMessage = document.getElementById("late-message");
+
+  if (attendanceData.late === "지각") {
+    lateStatus.innerText = "🚨 지각";
+    lateStatus.className = "text-sm font-bold mb-1 text-red-500";
+
+    lateMessage.innerText = "다음엔 더 일찍 오세요!";
+    lateMessage.className = "text-xs mb-4 text-red-400";
+  } else {
+    lateStatus.innerText = "🏆 정상 등교";
+    lateStatus.className = "text-sm font-bold mb-1 text-pink-500";
+
+    lateMessage.innerText = "오늘도 무사히 도착했어요.";
+    lateMessage.className = "text-xs mb-4 text-gray-500";
+  }
+
+  document.getElementById("checkin-view").classList.add("hidden");
+  document.getElementById("confirmation-view").classList.remove("hidden");
+}
+
+showCheckinSuccess(goToConfirmation);
+
+  isSending = true;
+  document.getElementById("checkin-btn").disabled = true;
+
+  send({ type: "attendance", ...attendanceData })
+    .then((ok) => {
+      if (!ok) {
+        showMsg("⚠️ 저장은 쓰는 중에 자동으로 됩니다. 걱정 마세요.");
+      }
+    })
+    .finally(() => {
+      isSending = false;
+      document.getElementById("checkin-btn").disabled = false;
+    });
+}
+
+function startReflection() {
+  document.getElementById("confirmation-view").classList.add("hidden");
+  document.getElementById("reflection-view").classList.remove("hidden");
+}
+
+function selectMood(btn, m) {
+  mood = m;
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove("selected"));
+  btn.classList.add("selected");
+}
+
+function goPromise() {
+  const warning = document.getElementById("reflection-warning");
+  const yesterday = document.getElementById("yesterday-input").value.trim();
+  const today = document.getElementById("today-input").value.trim();
+  const gratitude = document.getElementById("gratitude-input").value.trim();
+
+  if (!mood || !yesterday || !today || !gratitude) {
+    warning.classList.remove("hidden");
+    return;
+  }
+
+  warning.classList.add("hidden");
+  document.getElementById("reflection-view").classList.add("hidden");
+  document.getElementById("promise-view").classList.remove("hidden");
+}
+
+function goFinal() {
+  document.getElementById("promise-view").classList.add("hidden");
+  document.getElementById("final-view").classList.remove("hidden");
+}
+
+function saveReflection() {
+  if (isSending) return;
+
+const promiseValue = document.getElementById("promise-input").value.trim();
+const promiseWarning = document.getElementById("promise-warning");
+
+if (!promiseValue) {
+  promiseWarning.classList.remove("hidden");
+  return;
+}
+
+promiseWarning.classList.add("hidden");
+
+  const data = {
+    type: "reflection",
+    student: student,
+    mood: mood,
+    yesterday: document.getElementById("yesterday-input").value,
+    today: document.getElementById("today-input").value,
+    gratitude: document.getElementById("gratitude-input").value,
+    promise: promiseValue,
+    time: new Date().toISOString()
+  };
+
+  // 먼저 마지막 화면으로 이동
+  goFinal();
+  showMsg("저장 중...");
+
+  // 저장은 뒤에서 진행
+  isSending = true;
+  document.getElementById("save-btn").disabled = true;
+
+  send(data)
+    .then((ok) => {
+      if (ok) {
+        showMsg("저장 완료 🌿");
+      } else {
+        showMsg("⚠️ 걱정 마세요. 자동 저장 될겁니다.");
+      }
+    })
+    .finally(() => {
+      isSending = false;
+      document.getElementById("save-btn").disabled = false;
+    });
+}
+
+function openCookie() {
+  const quote = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+  const card = document.getElementById("quote-card");
+  document.getElementById("quote-text").innerText = quote;
+  card.classList.remove("hidden");
+  card.classList.remove("cookie-pop");
+  void card.offsetWidth;
+  card.classList.add("cookie-pop");
+  document.getElementById("cookie-btn").innerText = "🍪";
+}
+
+function resetAll() {
+  student = null;
+  mood = '';
+  attendanceData = null;
+  isSending = false;
+
+  document.getElementById("student-select").value = '';
+  document.getElementById("checkin-btn").disabled = false;
+  document.getElementById("save-btn").disabled = false;
+
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove("selected"));
+  document.getElementById("yesterday-input").value = '';
+  document.getElementById("today-input").value = '';
+  document.getElementById("gratitude-input").value = '';
+  document.getElementById("promise-input").value = '';
+
+  document.getElementById("checkin-view").classList.remove("hidden");
+  document.getElementById("confirmation-view").classList.add("hidden");
+  document.getElementById("reflection-view").classList.add("hidden");
+  document.getElementById("promise-view").classList.add("hidden");
+  document.getElementById("final-view").classList.add("hidden");
+
+  document.getElementById("quote-card").classList.add("hidden");
+  document.getElementById("cookie-btn").innerText = "🥠";
+  showMsg("");
+}
+
+async function send(data) {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+    const res = await fetch(WEB_APP_URL, {
+      method: "POST",
+      body: JSON.stringify(data),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!res.ok) throw new Error();
+    return true;
+  } catch (e) {
+    console.log("전송 실패", e);
+    return false;
+  }
+}
+</script>
+
+</body>
+</html>
