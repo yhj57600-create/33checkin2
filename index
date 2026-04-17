@@ -198,7 +198,7 @@
 </div>
 
 <script>
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxJsg89gQfKIE0CPP4CYzYWc4cwTYaTsgeTs178J9_T4M5BvhBTmTW8rgEdPdi5H4BCjQ/exec';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyDqc1TP3huxmt1yHgy1ZDYa2rwi6yoLZs07D0OI3ysJPtZt4rRw4ZrDvWA080AaZRtHQ/exec';
   document.addEventListener("DOMContentLoaded", function () {
   const today = new Date();
   document.getElementById("today-date").innerText =
